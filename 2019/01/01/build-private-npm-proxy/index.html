@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+  <link href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+  
+
+<link href="//cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@4.6.2/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+<link href="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/css/main.min.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/css/disqusjs.min.css?v=1.3">
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Node.js,npm," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="由于我们公司内部的前端项目越来越多并且迭代速度越来越快，项目里的业务系统也精细的进行了不同的划分，那么这些项目之间的公共代码以及公共组件的提取、维护、管理问题就也愈显的突出。所以，最近都在进行公共库的维护以及公共组件的提取工作，然后再把这些公共库和公共组件库以依赖包的形式进行管理，同样的我们使用了 SemVer 来进行版本号的规范化，最后再以依赖包的形式进行发布。这就让我们可以把这些单独“拎出来的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建公司内部的npm私服">
+<meta property="og:url" content="https://www.aaronlam.xyz/2019/01/01/build-private-npm-proxy/index.html">
+<meta property="og:site_name" content="Aaronlam">
+<meta property="og:description" content="由于我们公司内部的前端项目越来越多并且迭代速度越来越快，项目里的业务系统也精细的进行了不同的划分，那么这些项目之间的公共代码以及公共组件的提取、维护、管理问题就也愈显的突出。所以，最近都在进行公共库的维护以及公共组件的提取工作，然后再把这些公共库和公共组件库以依赖包的形式进行管理，同样的我们使用了 SemVer 来进行版本号的规范化，最后再以依赖包的形式进行发布。这就让我们可以把这些单独“拎出来的">
+<meta property="og:locale">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210145307.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210145522.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210152437.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210153024.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210154239.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210154239.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210160045.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210164544.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210164312.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210165808.png">
+<meta property="article:published_time" content="2019-01-01T00:00:00.000Z">
+<meta property="article:modified_time" content="2021-10-01T17:18:02.328Z">
+<meta property="article:author" content="aaronlam">
+<meta property="article:tag" content="Node.js">
+<meta property="article:tag" content="npm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210145307.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.aaronlam.xyz/2019/01/01/build-private-npm-proxy/"/>
+
+
+
+
+
+  <title>搭建公司内部的npm私服 | Aaronlam</title>
+  
+
+
+
+
+
+
+
+  <!-- Cloudflare Web Analytics -->
+  <script
+    defer
+    src="https://static.cloudflareinsights.com/beacon.min.js"
+    data-cf-beacon='{"token": "d20e97bac59548d5a056f30a47843323"}'
+  ></script>
+  <!-- End Cloudflare Web Analytics -->
+
+
+
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Aaronlam</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">小宇宙</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.aaronlam.xyz/2019/01/01/build-private-npm-proxy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aaronlam">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">搭建公司内部的npm私服</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-01T08:00:00+08:00">
+                2019-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Node-js/" itemprop="url" rel="index">
+                    <span itemprop="name">Node.js</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/01/build-private-npm-proxy/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/01/01/build-private-npm-proxy/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>由于我们公司内部的前端项目越来越多并且迭代速度越来越快，项目里的业务系统也精细的进行了不同的划分，那么这些项目之间的公共代码以及公共组件的提取、维护、管理问题就也愈显的突出。所以，最近都在进行公共库的维护以及公共组件的提取工作，然后再把这些公共库和公共组件库以依赖包的形式进行管理，同样的我们使用了 SemVer 来进行版本号的规范化，最后再以依赖包的形式进行发布。这就让我们可以把这些单独“拎出来的代码”能够以 <code>npm install</code> 或 <code>yarn add</code> 的形式来进行依赖包安装，然后再引入到实际用到的每个项目里，这样一旦这些公共库或公共组件库更新了，就不用在每个项目里一份一份的复制粘贴了，直接 <code>npm update</code> 或 <code>yarn upgrade</code> 了事。</p>
+<p>但是，对于一些公共库的代码可能会涉及到比较核心的业务逻辑，就导致我们没办法把这些库代码的依赖包以 npm 包的形式发布到公网的 npm 仓库；同时，由于每次前端项目进行依赖包安装时，其安装的速度都依赖于网络以及第三方镜像。所以，这就迫切的需要有一个公司内部的 npm 私有仓库了，也就是 npm 私服。在我研究了目前 npm 私服的几乎所有搭建方式后，总结下来总共有以下几种：</p>
+<p>付费：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.myget.org/">MyGet</a>：9 刀每月，两个账号，1GB 空间</li>
+<li><a target="_blank" rel="noopener" href="https://www.npmjs.com/">NPM Org</a>：每个账号每月 7 刀</li>
+</ol>
+<p>免费：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://docs.npmjs.com/misc/registry">DIY NPM</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/cnpm/cnpmjs.org">CNPM</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.sonatype.com/">Nexus</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.npmjs.com/package/sinopia">Sinopia</a></li>
+<li><a target="_blank" rel="noopener" href="https://verdaccio.org/">Verdaccio</a></li>
+</ol>
+<p>首先排除付费，根据搭建方式和易用程度来选本来是选择 Sinopia 的，因为其搭建十分简单友好，基本就是傻瓜式的。不过到其 GitHub Repo 页面看到貌似已经放弃维护很多年了，然后再深入调查发现有一群人出了个分支，而这个分支就是 Verdaccio。然后还发现 Verdaccio 延续了 Sinopia 的简单便捷，并且这个库也在积极维护中，看起来就比 Sinopia 靠谱一点。最后就果断的选择了 Verdaccio 来搭建公司内部的 npm 私服。</p>
+<p>不过如果公司内部有 Java 技术栈团队的可以尝试一下 Nexus，因为看到他貌似也可以进行 maven/gralde 仓库的统一管理。而我们公司虽然也有 Java 技术栈的团队，但是由于我们部门后端是 .Net 技术栈，遂放弃！</p>
+<a id="more"></a>
+
+<h2 id="搭建步骤"><a href="#搭建步骤" class="headerlink" title="搭建步骤"></a>搭建步骤</h2><p>在搭建时我是向公司的运维同学申请了一台内存 4GB 的 Linux 虚拟机，这个配置的话在后续的使用中也没有出现过太大的问题。所以，大家可以根据实际情况来挑选合适的配置进行搭建。但下面的演示步骤，我拿的是 Windows 开发机进行演示的。无须担心，他们的搭建步骤基本是一致的。</p>
+<h3 id="1-安装-Node-js"><a href="#1-安装-Node-js" class="headerlink" title="1. 安装 Node.js"></a>1. 安装 Node.js</h3><p>由于我的电脑已经安装上了，所以这里就不再演示了。</p>
+<h3 id="2-安装-Verdaccio-依赖包"><a href="#2-安装-Verdaccio-依赖包" class="headerlink" title="2. 安装 Verdaccio 依赖包"></a>2. 安装 Verdaccio 依赖包</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i -g verdaccio</span><br></pre></td></tr></table></figure>
+
+<p>如果安装过程报了 grywarn 的权限错误的话，那么需要加上 <code>--unsafe-perm</code>，如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i -g verdaccio --unsafe-perm</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-启动-Verdaccio"><a href="#3-启动-Verdaccio" class="headerlink" title="3. 启动 Verdaccio"></a>3. 启动 Verdaccio</h3><p>安装完依赖包后，我们就可以在命令行中输入 <code>verdaccio</code> 命令启动，如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210145307.png" alt="启动Verdaccio"></p>
+<p>此时，我们在浏览器中，输入 <code>http://localhost:4873</code> 就可以看到用 Verdaccio 搭建好的 npm 私服了，如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210145522.png" alt="Verdaccio首页"></p>
+<h2 id="使用步骤"><a href="#使用步骤" class="headerlink" title="使用步骤"></a>使用步骤</h2><h3 id="1-安装-nrm-yrm"><a href="#1-安装-nrm-yrm" class="headerlink" title="1. 安装 nrm/yrm"></a>1. 安装 nrm/yrm</h3><p>在使用 Verdaccio 所搭建的 npm 私服之前，我们可以先安装 <code>nrm</code> 或者 <code>yrm</code> 来管理自己的 npm 源，这两个命令行工具可以帮助我们快速的修改、切换、增加源。由于 <code>nrm</code> 和 <code>yrm</code> 的使用方式是类似的，所以下面都以 <code>nrm</code> 作为演示的例子。</p>
+<p>执行下面的命令安装其依赖包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i -g nrm</span><br></pre></td></tr></table></figure>
+
+<p>如果想了解更多关于 <code>nrm</code> 的命令，可以执行命令 <code>nrm --help</code> 来查看所列出的所有命令。</p>
+<h3 id="2-使用-nrm-添加私服源"><a href="#2-使用-nrm-添加私服源" class="headerlink" title="2. 使用 nrm 添加私服源"></a>2. 使用 nrm 添加私服源</h3><p>我们刚刚已经启动了 Verdaccio，也就表明我们使用 Verdaccio 所搭建的 npm 私服源正在悄悄运行中了。此时，如果我们想要使用他的话就可以用 <code>nrm</code> 来添加该私服源。当然不使用 <code>nrm</code> ，手动使用命令 <code>npm config set registry http://127.0.0.1:4873</code> 去设置 npm 的源地址，或者在项目根目录下创建 <code>.npmrc</code> 配置文件来配置项目使用的源地址也是可以的，不过为了便捷性我们还是使用 <code>nrm</code> 吧。</p>
+<p>执行下面的命令添加 npm 私服源：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 这里的verdaccio是名字，可以输入任意名字</span></span><br><span class="line">nrm add verdaccio http://127.0.0.1:4873</span><br></pre></td></tr></table></figure>
+
+<p>添加完后，此时我们就可以执行以下命令，列出目前所有的源：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nrm ls</span><br></pre></td></tr></table></figure>
+
+<p>下图中所列出的就是 <code>nrm</code> 中我们所有能够切换的 npm 源了，刚添加的私服源在最下面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210152437.png" alt="所有npm源"></p>
+<h3 id="3-利用-nrm-使用私服源"><a href="#3-利用-nrm-使用私服源" class="headerlink" title="3. 利用 nrm 使用私服源"></a>3. 利用 nrm 使用私服源</h3><p>上面我们已经列出了所有能切换的 npm 源了，列表中也出现了我们所添加的私服源。</p>
+<p>执行下面的命令把当前 npm 的源切换到私服源：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nrm use verdaccio</span><br></pre></td></tr></table></figure>
+
+<p>如下图所示，我们就已经切换到刚添加的私服源了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210153024.png" alt="切换私服源"></p>
+<h3 id="4-创建私服源账号"><a href="#4-创建私服源账号" class="headerlink" title="4. 创建私服源账号"></a>4. 创建私服源账号</h3><p>有发布过 npm 包的同学应该知道，在发布前我们都需要先注册 npm 官方源的账号，这样我们才能够把我们开发的 npm 包发布到对应的账号下供别人使用。而我们的私服源也是同样道理，如果要发布包到私服里，也是需要先创建一个私服的账号。我们刚刚已经使用 <code>nrm</code> 把 npm 的源切换到了 verdaccio （私服）源下，那么如何创建账号？往下看！</p>
+<p>执行以下命令后就可以根据提示创建账号：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm adduser</span><br></pre></td></tr></table></figure>
+
+<p>如下图所示，我在自己搭建的私服源中创建了 test 账号：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210154239.png" alt="创建私服源账号"></p>
+<h3 id="5-登录私服源账号"><a href="#5-登录私服源账号" class="headerlink" title="5. 登录私服源账号"></a>5. 登录私服源账号</h3><p>既然账号都已经创建了，自然就可以使用刚刚的账号登录到所搭建的私服源中。</p>
+<p>执行以下命令登录私服源账号：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm login</span><br></pre></td></tr></table></figure>
+
+<p>如下图所示，如我们的预期一样，所注册的账号已经可以登录到私服源了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210154239.png" alt="登录私服源账号"></p>
+<h3 id="6-发布包到私服源"><a href="#6-发布包到私服源" class="headerlink" title="6. 发布包到私服源"></a>6. 发布包到私服源</h3><p>现在，我们可以尝试一下创建一个项目然后把该项目发布到私服源中。我这里是随便创建了一个文件夹 <code>verdaccio-npm-publish-demo</code>，然后用 VSCode 打开后在终端执行 <code>npm init</code> 初始化项目，再创建一个 <code>index.js</code> 文件，内容就为 <code>console.log(&#39;publish demo&#39;)</code>，如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210160045.png" alt="项目概览图"></p>
+<p>此时，我们回到在终端中，执行命令 <code>npm login</code> 登录到私服源中，然后再执行命令 <code>npm publish</code> 来把包发布到私服源里去。此时终端就会显示包已经发布成功，如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210164544.png" alt="私服源包发布"></p>
+<p>我们访问私服源的首页，也会看到我们刚刚所发布的包，如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210164312.png" alt="已发布的包"></p>
+<h3 id="7-安装私服源里的包"><a href="#7-安装私服源里的包" class="headerlink" title="7. 安装私服源里的包"></a>7. 安装私服源里的包</h3><p>我们已经把项目 <code>verdaccio-npm-publish-demo</code> 以包的形式发布到私服源里了，那么自然的就能够在其他项目里安装这个包。<strong>我们可以像平常安装包依赖一样安装这个包，前提是我们已经把 npm 的源切换到了私服源。</strong>我这里创建了多一个项目 <code>verdaccio-npm-install-demo</code> 来演示安装私服源里的依赖包。</p>
+<p>如下图所示，项目 <code>verdaccio-npm-install-demo</code> 里安装了私服源里的 <code>verdaccio-npm-publish-demo</code> 依赖包：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201210165808.png" alt="私服源依赖包安装"></p>
+<h2 id="优化配置"><a href="#优化配置" class="headerlink" title="优化配置"></a>优化配置</h2><p>从上面启动 Verdaccio 的信息来看，他的配置文件应该是 <code>C:\Users\Administrator\AppData\Roaming\verdaccio\</code> 文件夹下的 <code>config.yaml</code> 文件，所以，我们接下来都会在该配置文件中做进一步的配置。</p>
+<h3 id="1-外网访问"><a href="#1-外网访问" class="headerlink" title="1. 外网访问"></a>1. 外网访问</h3><p>如果外网也需要访问该 npm 私服的话，那么需要在配置文件的底部增加以下配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">listen:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span><span class="string">:4873</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-用户控制"><a href="#2-用户控制" class="headerlink" title="2. 用户控制"></a>2. 用户控制</h3><p>在上文中可以看到 Verdaccio 默认是允许任何人创建账号的，如果没有进一步的配置，那么所创建账号的账号都会有 publish 的权限。所以，如果我们要把控好权限，就要进一步的配置他。</p>
+<p>此时，我们打开配置文件，进行以下修改：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">auth:</span><br><span class="line">  htpasswd:</span><br><span class="line">    file: ./htpasswd</span><br><span class="line"><span class="addition">+   max_users: -1</span></span><br><span class="line">    # Maximum amount of users allowed to register, defaults to &quot;+inf&quot;.</span><br><span class="line">    # You can set this to -1 to disable registration.</span><br><span class="line">    # max_users: 1000</span><br></pre></td></tr></table></figure>
+
+<p>问题来了，如果设置为了 <code>max_users: -1</code>，那以后要怎么增加用户呢？有以下两种方式：</p>
+<ol>
+<li>手动编辑 <code>htpasswd</code> 文件</li>
+<li>使用第三方工具，以 命令的形式增加用户</li>
+</ol>
+<p>执行以下命令安装 sinopia-adduser（没错，由于 Verdaccio 是由 Sinopia 所分支出来的，所以工具也通用）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i g sinopia-adduser</span><br></pre></td></tr></table></figure>
+
+<p>安装好后，到 <code>htpasswd</code> 文件目录下，运行一下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sinopia-adduser</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-权限控制"><a href="#3-权限控制" class="headerlink" title="3. 权限控制"></a>3. 权限控制</h3><p>既然用户已经控制住了，权限当然也要进行控制。我们可以在 Verdaccio 的配置文件中，发现 <code>packages</code> 的配置项，内容如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">packages:</span></span><br><span class="line">  <span class="string">&quot;@*/*&quot;</span><span class="string">:</span></span><br><span class="line">    <span class="comment"># scoped packages</span></span><br><span class="line">    <span class="attr">access:</span> <span class="string">$all</span></span><br><span class="line">    <span class="attr">publish:</span> <span class="string">$authenticated</span></span><br><span class="line">    <span class="attr">unpublish:</span> <span class="string">$authenticated</span></span><br><span class="line">    <span class="attr">proxy:</span> <span class="string">npmjs</span></span><br><span class="line"></span><br><span class="line">  <span class="string">&quot;**&quot;</span><span class="string">:</span></span><br><span class="line">    <span class="comment"># allow all users (including non-authenticated users) to read and</span></span><br><span class="line">    <span class="comment"># publish all packages</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="comment"># you can specify usernames/groupnames (depending on your auth plugin)</span></span><br><span class="line">    <span class="comment"># and three keywords: &quot;$all&quot;, &quot;$anonymous&quot;, &quot;$authenticated&quot;</span></span><br><span class="line">    <span class="attr">access:</span> <span class="string">$all</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># allow all known users to publish/publish packages</span></span><br><span class="line">    <span class="comment"># (anyone can register by default, remember?)</span></span><br><span class="line">    <span class="attr">publish:</span> <span class="string">$authenticated</span></span><br><span class="line">    <span class="attr">unpublish:</span> <span class="string">$authenticated</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># if package is not available locally, proxy requests to &#x27;npmjs&#x27; registry</span></span><br><span class="line">    <span class="attr">proxy:</span> <span class="string">npmjs</span></span><br></pre></td></tr></table></figure>
+
+<p>下面简单的介绍一下以上的一些配置项含义：</p>
+<p>首先，上面对于 <code>packages</code> 配置项的子配置项有两个，一个是 <code>@*/*</code> 另外一个是 <code>**</code>，而这两个配置项有个名称叫 <code>scope</code>，其作用是用来匹配依赖包名字的。那这样就不难发现 <code>@*/*</code> 应该就是用来匹配类似 <code>@babel/preset-env</code> 这种依赖包的，而 <code>**</code> 就是用来匹配 <code>webpack</code> 这种依赖包的。这样的话，我们就可以针对依赖包的名字做以下的详细配置。</p>
+<p>权限：</p>
+<ul>
+<li><code>access</code> 表示哪一类用户可以安装此类依赖包（install）</li>
+<li><code>publish</code> 表示哪一类用户可以发布此类依赖包（publish）</li>
+<li><code>proxy</code> 这里的值对应的是配置文件中的 <code>uplinks</code> 配置项里的子项名称，<code>uplinks</code> 配置项是配置上游 npm 源的。而 <code>proxy</code> 配置项的作用是如果私服源不存在依赖包，那就去对应配置的上游 npm 源获取。</li>
+</ul>
+<p>值得含义：</p>
+<ul>
+<li><code>$all</code> 表示所有人（已注册，未注册）都可以执行对应操作</li>
+<li><code>$authenticated</code> 表示只有注册且登录的用户才可以执行对应操作</li>
+<li><code>$anonymous</code> 表示只有未注册登录可以执行对应操作</li>
+</ul>
+<p>那就是说，如果我们需要指定某个用户才有权限，就直接配置上其账号名称即可（多个用户用空格隔开），比如：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">access:</span> <span class="string">aaronlam</span> <span class="string">test</span></span><br></pre></td></tr></table></figure>
+
+<p>修改完配置后重启 verdaccio 即可！</p>
+<h2 id="进程守护"><a href="#进程守护" class="headerlink" title="进程守护"></a>进程守护</h2><p>如果此时直接在服务器中执行命令 <code>verdaccio</code> 开启 npm 私服的话，那么就没办法保证其进程能够一直安全的运行。万一进程挂了，那就麻烦大了，所以我们需要使用 Node.js 里的进程守护工具 <code>pm2</code> 来对 <code>verdaccio</code> 进程进行托管启动。</p>
+<p>执行以下命令安装依赖包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i -g pm2</span><br></pre></td></tr></table></figure>
+
+<p>安装好后，我们就可以通过以下命令让 <code>pm2</code> 来托管运行我们的 <code>verdaccio</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pm2 start verdaccio</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们可以通过以下命令来查看 <code>verdaccio</code> 的实时日志：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pm2 show verdaccio</span><br></pre></td></tr></table></figure>
+
+<p>至此，我们对于搭建公司内部的 npm 私服就完成啦！其实 <code>verdaccio</code> 还有其他的一些插件可以搭配使用，这个就让大家自己去探索了。另外，关于 <code>pm2</code> 命令行进程守护工具的更多用法，可以移步到 <a target="_blank" rel="noopener" href="https://pm2.keymetrics.io/docs/usage/quick-start/">pm2 官网的文档</a>查看。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    aaronlam
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.aaronlam.xyz/2019/01/01/build-private-npm-proxy/" title="搭建公司内部的npm私服">https://www.aaronlam.xyz/2019/01/01/build-private-npm-proxy/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Node-js/" rel="tag"># Node.js</a>
+          
+            <a href="/tags/npm/" rel="tag"># npm</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/30/amend-git-committed-comment/" rel="next" title="如何修改Git Commit的描述">
+                <i class="fa fa-chevron-left"></i> 如何修改Git Commit的描述
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/01/why-tcp-connection-need-three-way-handshake/" rel="prev" title="为什么TCP建立个连接得握三次手">
+                为什么TCP建立个连接得握三次手 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA%E6%AD%A5%E9%AA%A4"><span class="nav-text">搭建步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85-Node-js"><span class="nav-text">1. 安装 Node.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AE%89%E8%A3%85-Verdaccio-%E4%BE%9D%E8%B5%96%E5%8C%85"><span class="nav-text">2. 安装 Verdaccio 依赖包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%90%AF%E5%8A%A8-Verdaccio"><span class="nav-text">3. 启动 Verdaccio</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4"><span class="nav-text">使用步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85-nrm-yrm"><span class="nav-text">1. 安装 nrm&#x2F;yrm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8-nrm-%E6%B7%BB%E5%8A%A0%E7%A7%81%E6%9C%8D%E6%BA%90"><span class="nav-text">2. 使用 nrm 添加私服源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%88%A9%E7%94%A8-nrm-%E4%BD%BF%E7%94%A8%E7%A7%81%E6%9C%8D%E6%BA%90"><span class="nav-text">3. 利用 nrm 使用私服源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%88%9B%E5%BB%BA%E7%A7%81%E6%9C%8D%E6%BA%90%E8%B4%A6%E5%8F%B7"><span class="nav-text">4. 创建私服源账号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E7%99%BB%E5%BD%95%E7%A7%81%E6%9C%8D%E6%BA%90%E8%B4%A6%E5%8F%B7"><span class="nav-text">5. 登录私服源账号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%8F%91%E5%B8%83%E5%8C%85%E5%88%B0%E7%A7%81%E6%9C%8D%E6%BA%90"><span class="nav-text">6. 发布包到私服源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E5%AE%89%E8%A3%85%E7%A7%81%E6%9C%8D%E6%BA%90%E9%87%8C%E7%9A%84%E5%8C%85"><span class="nav-text">7. 安装私服源里的包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E9%85%8D%E7%BD%AE"><span class="nav-text">优化配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE"><span class="nav-text">1. 外网访问</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%94%A8%E6%88%B7%E6%8E%A7%E5%88%B6"><span class="nav-text">2. 用户控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6"><span class="nav-text">3. 权限控制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E5%AE%88%E6%8A%A4"><span class="nav-text">进程守护</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">aaronlam</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="//cdn.jsdelivr.net/fastclick/1.0.6/fastclick.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.lazyload/1.9.3/jquery.lazyload.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="//cdn.jsdelivr.net/velocity/1.2.3/velocity.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="//cdn.jsdelivr.net/velocity/1.2.3/velocity.ui.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="//cdn.jsdelivr.net/gh/hustcc/canvas-nest.js@1.0.0/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+
+
+
+
+  <script type="text/javascript" src="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/js/src/utils.min.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/js/src/motion.min.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+
+
+
+
+  <script type="text/javascript" src="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/js/src/bootstrap.min.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/js/src/disqus-count.min.js?v=1.3" async></script>
+    
+
+    
+      <script>
+        function loadDisqusJS() {
+          var d = document, s = d.createElement('script');
+          s.src="//cdn.jsdelivr.net/gh/aaronlam/aaronlam@gh-pages/js/src/disqus.min.js?v=1.3"
+          s.async = 1; // 保证异步加载
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+          s.onload = s.onreadstatechange = function() {
+            // 保证IE及非IE都能正常script监听onload事件
+            if(!this.readyState || this.readyState == "loaded" || this.readyState == "complete") {
+              var dsqjs = new DisqusJS({
+                  shortname: 'aaronlam',
+                  siteName: 'Aaronlam',
+                  identifier: document.location.origin + document.location.pathname + document.location.search,
+                  url: document.location.origin + document.location.pathname + document.location.search,
+                  title: document.title,
+                  api: '//corsapi.aaronlam.xyz/disqus.com/api/',
+                  apikey: ['3tSA13Wd42mFImQZH1JerSBXZjvKLvKrdhEplfG5k1dL6cmine6bV1UsmhizFvyJ', 'c9nomZ32wB7pDogCbRuTqrY2OKGcJzOXeN1ZNZVCQvSdO5KGerxLNiAdcaMgMKvY', '2jtVcNm4XvnISFqQiiLmjNgt2lramSks68WAnyASnteVzMRnLFYCXSiudbrpoNLr', 'SnBHyhy1pSbmPgKXMATfPUOv3Q2WWuAkv0JS2LjLVUrjZGWQeJdMQhlJUJow6ufb', 'a0tgOWx5UOuVR4jHitN6HA9SZPg61JCynHEx0ZCd7bYR5BhrqQRE15ph00Dl3L1i', '75iOeCKL8JTvz9pX1zqXKcqXsdmHITL9IhmSDbw4WhYMlRod2v5LlJEIPgwyMy92', 'NLPPSIXr0gAgtVhsyDPraicrQh1nSlgGKbkkl09GpYcpapvDbgWsQDpV2pTpyHHX', 'u9eBGtFAZJyv5YJatlkzZRswrlFFuJnfZwaAk3sSS3szKRkBcOKr6smJa7AIbyNB', 'BFHqakwhtPD8Iy2SkjX6Ip0bitnlXuH2QIyYhNM3czJyNp6Os1UnV1DdigYHtMIY', 'SlAHfNK44AyAaMJC3lqvls5LfAyHgHdXbJOglPw6imBarYCbwY88KfjkZ1dttmIE'],
+                  admin: 'aaronlam',
+                  adminLabel: 'Mod'
+              });
+            }
+          }
+        }
+
+        // 判断当前环境是否为浏览器
+        var runningOnBrowser = typeof window !== "undefined";
+        // 通过检查全局对象的scroll属性及检查userAgent判断当前访问者是否为爬虫
+        var isSpiderBot = (runningOnBrowser && !("onscroll" in window)) || (typeof navigator !== "undefined" && /(gle|ing|ro|msn)bot|crawl|spider|yand|duckgo/i.test(navigator.userAgent));
+        // 判断当前浏览器是否支持IntersectionObserver API
+        var supportIntersectionObserver = runningOnBrowser && "IntersectionObserver" in window;
+      
+        setTimeout(function() {
+          if(!isSpiderBot && supportIntersectionObserver) {
+            var disqusJSObserver = new IntersectionObserver(function(entries) {
+              // 对应监控元素已出现在显示视窗中
+              if(entries[0].isIntersecting) {
+                // 加载DisqusJS
+                loadDisqusJS();
+                // 停止继续监控
+                disqusJSObserver.disconnect();
+              }
+            }, { threshold: [0] });
+            // 设置监控的元素
+            disqusJSObserver.observe(document.getElementById('disqus_thread'));
+          } else {
+            // 当前访问者为爬虫或者当前浏览器不支持IntersectionObserver API
+            loadDisqusJS();
+          }
+        })
+      </script>
+    
+    
+  
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
