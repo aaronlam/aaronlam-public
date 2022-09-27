@@ -554,16 +554,16 @@
 <p>但是，对于一些公共库的代码可能会涉及到比较核心的业务逻辑，就导致我们没办法把这些库代码的依赖包以 npm 包的形式发布到公网的 npm 仓库；同时，由于每次前端项目进行依赖包安装时，其安装的速度都依赖于网络以及第三方镜像。所以，这就迫切的需要有一个公司内部的 npm 私有仓库了，也就是 npm 私服。在我研究了目前 npm 私服的几乎所有搭建方式后，总结下来总共有以下几种：</p>
 <p>付费：</p>
 <ol>
-<li><a target="_blank" rel="noopener" href="https://www.myget.org/">MyGet</a>：9 刀每月，两个账号，1GB 空间</li>
-<li><a target="_blank" rel="noopener" href="https://www.npmjs.com/">NPM Org</a>：每个账号每月 7 刀</li>
+<li><a target="_blank" rel="noopener" href="//www.myget.org/">MyGet</a>：9 刀每月，两个账号，1GB 空间</li>
+<li><a target="_blank" rel="noopener" href="//www.npmjs.com/">NPM Org</a>：每个账号每月 7 刀</li>
 </ol>
 <p>免费：</p>
 <ol>
-<li><a target="_blank" rel="noopener" href="https://docs.npmjs.com/misc/registry">DIY NPM</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/cnpm/cnpmjs.org">CNPM</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.sonatype.com/">Nexus</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.npmjs.com/package/sinopia">Sinopia</a></li>
-<li><a target="_blank" rel="noopener" href="https://verdaccio.org/">Verdaccio</a></li>
+<li><a target="_blank" rel="noopener" href="//docs.npmjs.com/misc/registry">DIY NPM</a></li>
+<li><a target="_blank" rel="noopener" href="//github.com/cnpm/cnpmjs.org">CNPM</a></li>
+<li><a target="_blank" rel="noopener" href="//www.sonatype.com/">Nexus</a></li>
+<li><a target="_blank" rel="noopener" href="//www.npmjs.com/package/sinopia">Sinopia</a></li>
+<li><a target="_blank" rel="noopener" href="//verdaccio.org/">Verdaccio</a></li>
 </ol>
 <p>首先排除付费，根据搭建方式和易用程度来选本来是选择 Sinopia 的，因为其搭建十分简单友好，基本就是傻瓜式的。不过到其 GitHub Repo 页面看到貌似已经放弃维护很多年了，然后再深入调查发现有一群人出了个分支，而这个分支就是 Verdaccio。然后还发现 Verdaccio 延续了 Sinopia 的简单便捷，并且这个库也在积极维护中，看起来就比 Sinopia 靠谱一点。最后就果断的选择了 Verdaccio 来搭建公司内部的 npm 私服。</p>
 <p>不过如果公司内部有 Java 技术栈团队的可以尝试一下 Nexus，因为看到他貌似也可以进行 maven/gralde 仓库的统一管理。而我们公司虽然也有 Java 技术栈的团队，但是由于我们部门后端是 .Net 技术栈，遂放弃！</p>
