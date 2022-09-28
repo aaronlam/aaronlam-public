@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
@@ -27,11 +27,11 @@
 <meta property="og:url" content="https://www.aaronlam.xyz/2019/08/01/http-cache/index.html">
 <meta property="og:site_name" content="Aaronlam">
 <meta property="og:description" content="缓存在开发人员的眼里并不陌生，它对于程序的性能和效率的提升起到了至关重要的作用。甚至是在 CPU 与内存这种硬件与硬件间的交互，也存在着多级别的缓存用以提升交互间的性能。同样的，在前端要进行性能的优化，减少客户端与服务端的资源请求，提升客户端页面的加载速度，自然也就摆脱不了缓存这个“魔咒”。而前端文件缓存实质上也就是 HTTP 缓存，而 HTTP 缓存经过 HTTP 版本的迭代升级，也存在着几种不">
-<meta property="og:locale">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://corsapi.aaronlam.xyz/cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201119214520.png">
 <meta property="og:image" content="https://corsapi.aaronlam.xyz/cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201120002635.png">
 <meta property="article:published_time" content="2019-08-01T12:00:20.000Z">
-<meta property="article:modified_time" content="2022-09-28T06:39:08.706Z">
+<meta property="article:modified_time" content="2022-09-28T06:57:16.919Z">
 <meta property="article:author" content="aaronlam">
 <meta property="article:tag" content="HTTP">
 <meta property="article:tag" content="缓存">
@@ -48,7 +48,7 @@
     sidebar: "",
     isHome : false,
     isPost : true,
-    lang   : 'zh-Hans'
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -92,7 +92,7 @@
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
+    <div class="toggle" aria-label="切换导航栏">
       <span class="toggle-line toggle-line-first"></span>
       <span class="toggle-line toggle-line-middle"></span>
       <span class="toggle-line toggle-line-last"></span>
@@ -123,21 +123,21 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-about">
 
-    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
       <li class="menu-item menu-item-search">
-        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
       </li>
   </ul>
@@ -153,7 +153,7 @@
   </span>
   <div class="search-input-container">
     <input autocomplete="off" autocapitalize="off"
-           placeholder="Searching..." spellcheck="false"
+           placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
   <span class="popup-btn-close">
@@ -191,7 +191,7 @@
     
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://www.aaronlam.xyz/2019/08/01/http-cache/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -213,19 +213,19 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2019-08-01 20:00:20" itemprop="dateCreated datePublished" datetime="2019-08-01T20:00:20+08:00">2019-08-01</time>
+              <time title="创建时间：2019-08-01 20:00:20" itemprop="dateCreated datePublished" datetime="2019-08-01T20:00:20+08:00">2019-08-01</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
-              <span class="post-meta-item-text">In</span>
+              <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
                 </span>
-                  , 
+                  ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/%E5%89%8D%E7%AB%AF/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
                 </span>
@@ -342,18 +342,18 @@
         <div class="reward-container">
   <div></div>
   <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
-    Donate
+    打赏
   </button>
   <div id="qr" style="display: none;">
       
       <div style="display: inline-block;">
-        <img src="https://corsapi.aaronlam.xyz/cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201028183825.png" alt="aaronlam WeChat Pay">
-        <p>WeChat Pay</p>
+        <img src="https://corsapi.aaronlam.xyz/cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201028183825.png" alt="aaronlam 微信支付">
+        <p>微信支付</p>
       </div>
       
       <div style="display: inline-block;">
-        <img src="https://corsapi.aaronlam.xyz/cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201028183824.png" alt="aaronlam Alipay">
-        <p>Alipay</p>
+        <img src="https://corsapi.aaronlam.xyz/cdn.jsdelivr.net/gh/aaronlam/imghosting@master/20201028183824.png" alt="aaronlam 支付宝">
+        <p>支付宝</p>
       </div>
 
   </div>
@@ -436,10 +436,10 @@
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
-          Table of Contents
+          文章目录
         </li>
         <li class="sidebar-nav-overview">
-          Overview
+          站点概览
         </li>
       </ul>
 
@@ -460,16 +460,16 @@
           <a href="/archives/">
         
           <span class="site-state-item-count">13</span>
-          <span class="site-state-item-name">posts</span>
+          <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
         <span class="site-state-item-count">5</span>
-        <span class="site-state-item-name">categories</span>
+        <span class="site-state-item-name">分类</span>
       </div>
       <div class="site-state-item site-state-tags">
         <span class="site-state-item-count">23</span>
-        <span class="site-state-item-name">tags</span>
+        <span class="site-state-item-name">标签</span>
       </div>
   </nav>
 </div>
@@ -509,7 +509,7 @@
   </span>
   <span class="author" itemprop="copyrightHolder">aaronlam</span>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
 
         
